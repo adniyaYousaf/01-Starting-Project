@@ -1,0 +1,51 @@
+name: example 1
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        run: actions/checkout@v3
+      - name: install dependencies
+        run: npm ci
+      - name: lint code
+        run: npm run lint
+      - name: test code
+        run: npm run test
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        run: actions/checkout@v3
+      - name: install dependencies
+        run: npm ci
+      - name: lint code
+        run: npm run lint
+      - name: build code
+        run: npm run build
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist files
+          path: dist
+          # path: |
+          #     dist
+          #     package.json
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        run: actions/checkout@v3
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist files
+      - name: oupout artifacts
+        run: ls
+      - name: deploy code
+        run: echo "Deploying code"
